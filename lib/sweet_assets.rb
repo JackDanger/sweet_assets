@@ -17,11 +17,13 @@ module SweetAssets
   
   module SweetAssetsShortcuts
     def style_like(*assets)
-      assets.each {|asset| before_filter "style_like_#{asset}".intern }
+      options = assets.extract_options!
+      assets.each {|asset| before_filter "style_like_#{asset}".intern, options }
     end
 
     def script_like(*assets)
-      assets.each {|asset| before_filter "script_like_#{asset}".intern }
+      options = assets.extract_options!
+      assets.each {|asset| before_filter "script_like_#{asset}".intern, options}
     end
   end
   

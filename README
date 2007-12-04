@@ -35,11 +35,11 @@ Example
     Note: the controller-named assets (users.css and users.js in this case) will always
     be applied with precedence.
 
-  If you need better control over where these assets appear you can use a more traditional before_filter
+  If you need better control over where these assets appear you can use the same options as you would for a before_filter
     
     class UsersController < ApplicationController
-      before_filter :style_like_homes!, :only => :show
-      before_filter :script_like_trees, :except => [:index, :show]
+      style_like :homes!, :only => :show
+      script_like :trees, :except => [:index, :show]
     end
 
   All linked assets will be cached into a single asset if caching is enabled.
