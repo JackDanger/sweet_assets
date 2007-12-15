@@ -118,12 +118,14 @@ class SweetAssetsTest < Test::Unit::TestCase
   end
 
   def delete_empty_recent_files
-    dir = "#{RAILS_ROOT}/public/stylesheets"
-    Dir.entries(dir).each do |file|
-      if file =~ /.css$/
-        filename = File.join(dir, file)
-        if File.exists?(filename) && File.read(filename).blank? && (File.ctime(filename) + 10.minutes) > Time.now
-          File.delete(filename)
+    dirs = ["#{RAILS_ROOT}/public/stylesheets", "#{RAILS_ROOT}/public/javascripts"]
+    dirs.each do |dir|
+      Dir.entries(dir).each do |file|
+        if file =~ /(\.css|\.js)$/
+          filename = File.join(dir, file)
+          if File.exists?(filename) && File.read(filename).blank? && (File.ctime(filename) + 10.minutes) > Time.now
+            File.delete(filename)
+          end
         end
       end
     end

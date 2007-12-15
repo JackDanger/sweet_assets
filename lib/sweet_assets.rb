@@ -5,6 +5,7 @@ require 'action_view/helpers/tag_helper'
 module SweetAssets
   def self.included(base)
     base.class_eval do
+      include AssignmentMethods
       include ClassMethods
       extend  SweetAssetsShortcuts
       include AppendAssetsAfterRescue
@@ -18,12 +19,34 @@ module SweetAssets
   module SweetAssetsShortcuts
     def style_like(*assets)
       options = assets.extract_options!
-      assets.each {|asset| before_filter "style_like_#{asset}".intern, options }
+      before_filter Proc.new {|controller| controller.style_like *assets }, options
     end
 
     def script_like(*assets)
       options = assets.extract_options!
-      assets.each {|asset| before_filter "script_like_#{asset}".intern, options}
+      before_filter Proc.new {|controller| controller.script_like *assets }, options
+    end
+  end
+  
+  module AssignmentMethods    
+    def style_like(*styles)
+      styles.each do |style|
+        style = style.to_s
+        sweet_assets[:stylesheets][style.ends_with?('!') ? :bottom : :top] << style.gsub(/!$/, '')
+      end
+    end
+    
+    def script_like(*scripts)
+      scripts.each do |script|
+        script = script.to_s
+        sweet_assets[:javascripts][script.ends_with?('!') ? :bottom : :top] << script.gsub(/!$/, '')
+      end
+    end
+    
+    def sweet_assets
+      self.is_a?(ActionView::Base) ?
+        controller.instance_variable_get("@sweet_assets") :
+        @sweet_assets
     end
   end
   
@@ -31,10 +54,8 @@ module SweetAssets
     
     def method_missing_with_sweet_assets(method_name, *args, &block)
       
-      if match = method_name.to_s.match(/^style_like_(\w+)(\!)?$/)
-        @sweet_assets[:stylesheets][match[2] ? :bottom : :top] << match[1] 
-      elsif match = method_name.to_s.match(/^script_like_(\w+)(\!)?$/)
-        @sweet_assets[:javascripts][match[2] ? :bottom : :top] << match[1] 
+      if match = method_name.to_s.match(/^(style_like|script_like)_(\w+!?)$/)
+        send match[1], match[2]
       else
         method_missing_without_sweet_assets(method_name, *args, &block)
       end
@@ -47,11 +68,11 @@ module SweetAssets
     end
     
     def style_like_current_controller
-      @sweet_assets[:stylesheets][:bottom] << controller_name
+      style_like "#{controller_name}!"
     end
 
     def script_like_current_controller
-      @sweet_assets[:javascripts][:bottom] << controller_name
+      script_like "#{controller_name}!"
     end
 
     def apply_sweet_assets
@@ -78,6 +99,7 @@ module SweetAssets
 
       def stylesheet_tags(placement)
         files = @assets[:stylesheets][placement].dup
+        files.uniq!
         files = files.select {|file| File.exists?("#{STYLESHEETS_DIR}/#{file}.css") } unless RAILS_ENV.eql?('test')
         return '' if files.blank?
         files << {:cache => "sweet_stylesheets_#{files.join(',')}" } if ActionController::Base.perform_caching
@@ -86,6 +108,7 @@ module SweetAssets
 
       def javascript_tags(placement)
         files = @assets[:javascripts][placement].dup
+        files.uniq!
         files = files.select {|file| File.exists?("#{JAVASCRIPTS_DIR}/#{file}.js") } unless RAILS_ENV.eql?('test')
         return '' if files.blank?
         files << {:cache => "sweet_javascripts_#{files.join(',')}" } if ActionController::Base.perform_caching
