@@ -10,8 +10,8 @@ module SweetAssets
       extend  SweetAssetsShortcuts
       include AppendAssetsAfterRescue
       before_filter :initialize_assets_accessor
-      before_filter :style_like_current_controller
-      before_filter :script_like_current_controller
+      before_filter :apply_default_styles
+      before_filter :apply_default_scripts
       after_filter  :apply_sweet_assets
     end
   end
@@ -67,11 +67,13 @@ module SweetAssets
                         :stylesheets => {:top => [], :bottom => []} }
     end
     
-    def style_like_current_controller
+    def apply_default_styles
+      style_like :application
       style_like "#{controller_name}!"
     end
 
-    def script_like_current_controller
+    def apply_default_scripts
+      script_like :application
       script_like "#{controller_name}!"
     end
 

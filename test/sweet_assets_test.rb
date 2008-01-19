@@ -40,11 +40,12 @@ class SweetAssetsTest < Test::Unit::TestCase
   def test_each_stylesheet_should_appear
     get :index
     assert_response :success
+    assert_tag :link, :attributes => {:href => /stylesheets\/application.css/, :rel => 'stylesheet'}
     assert_tag :link, :attributes => {:href => /stylesheets\/web.css/, :rel => 'stylesheet'}
     assert_tag :link, :attributes => {:href => /stylesheets\/home.css/, :rel => 'stylesheet'}
     assert_tag :link, :attributes => {:href => /stylesheets\/extra.css/, :rel => 'stylesheet'}
     assert_tag :link, :attributes => {:href => /stylesheets\/users.css/, :rel => 'stylesheet'}
-    assert_select 'head > link', :count => 4
+    assert_select 'head > link', :count => 5
   end
   
   def test_bottom_stylesheets_should_appear_last
@@ -55,22 +56,23 @@ class SweetAssetsTest < Test::Unit::TestCase
 
   def test_caching_stylesheets
     ActionController::Base.perform_caching = true
-    with_stylesheets :home, :web, :users, :extra do
-      with_javascripts :home, :web, :users, :extra do
+    with_stylesheets :application, :home, :web, :users, :extra do
+      with_javascripts :application, :home, :web, :users, :extra do
         get :index
       end
     end
     assert_response :success
+    assert_no_tag :link, :attributes => {:href => /stylesheets\/application.css/, :rel => 'stylesheet'}
     assert_no_tag :link, :attributes => {:href => /stylesheets\/web.css/, :rel => 'stylesheet'}
     assert_no_tag :link, :attributes => {:href => /stylesheets\/home.css/, :rel => 'stylesheet'}
     assert_no_tag :link, :attributes => {:href => /stylesheets\/extra.css/, :rel => 'stylesheet'}
     assert_no_tag :link, :attributes => {:href => /stylesheets\/users.css/, :rel => 'stylesheet'}
-    assert_tag :link, :attributes => {:href => /sweet_stylesheets_home,extra.css(\?\d*)?/, :rel => 'stylesheet'}
+    assert_tag :link, :attributes => {:href => /sweet_stylesheets_application,home,extra.css(\?\d*)?/, :rel => 'stylesheet'}
     assert_tag :link, :attributes => {:href => /sweet_stylesheets_web,users.css(\?\d*)?/, :rel => 'stylesheet'}
     # and check the placement
     location_of_head = @response.body =~ /<head>/
     location_of_title = @response.body =~ /<title>/
-    location_of_home_extra_css = @response.body =~ /<link href="\/stylesheets\/sweet_stylesheets_home,extra.css/
+    location_of_home_extra_css = @response.body =~ /<link href="\/stylesheets\/sweet_stylesheets_application,home,extra.css/
     location_of_web_users_css = @response.body =~ /<link href="\/stylesheets\/sweet_stylesheets_web,users.css/
     assert location_of_head < location_of_home_extra_css
     assert location_of_home_extra_css < location_of_title
@@ -90,12 +92,12 @@ class SweetAssetsTest < Test::Unit::TestCase
     assert_no_tag :script, :attributes => {:src => /javascripts\/home.js/}
     assert_no_tag :script, :attributes => {:src => /javascripts\/extra.js/}
     assert_no_tag :script, :attributes => {:src => /javascripts\/users.js/}
-    assert_tag :script, :attributes => {:src => /sweet_javascripts_home,extra.js(\?\d*)?/}
+    assert_tag :script, :attributes => {:src => /sweet_javascripts_application,home,extra.js(\?\d*)?/}
     assert_tag :script, :attributes => {:src => /sweet_javascripts_web,users.js(\?\d*)?/}
     # and check the placement
     location_of_head = @response.body =~ /<head>/
     location_of_title = @response.body =~ /<title>/
-    location_of_home_extra_js = @response.body =~ /<script src="\/javascripts\/sweet_javascripts_home,extra.js/
+    location_of_home_extra_js = @response.body =~ /<script src="\/javascripts\/sweet_javascripts_application,home,extra.js/
     location_of_web_users_js = @response.body =~ /<script src="\/javascripts\/sweet_javascripts_web,users.js/
     assert location_of_head < location_of_home_extra_js
     assert location_of_home_extra_js < location_of_title
