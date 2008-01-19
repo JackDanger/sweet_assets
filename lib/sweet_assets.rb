@@ -40,7 +40,7 @@ module SweetAssets
       scripts.each do |script|
         script = script.to_s
         if 'defaults' == script
-          script_like *([ActionView::Helpers::AssetTagHelper::JAVASCRIPT_DEFAULT_SOURCES] + ['application']).flatten
+          script_like :prototype, :scriptaculous, :application
         end
         sweet_assets[:javascripts][script.ends_with?('!') ? :bottom : :top] << script.gsub(/!$/, '')
       end
