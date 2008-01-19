@@ -24,6 +24,10 @@ class ShortcutController < ActionController::Base
   script_like :extra!, :home
 end
 
+class DefaultsController < ActionController::Base
+  script_like :defaults
+end
+
 class SweetAssetsTest < Test::Unit::TestCase
 
   def setup
@@ -92,17 +96,27 @@ class SweetAssetsTest < Test::Unit::TestCase
     assert_no_tag :script, :attributes => {:src => /javascripts\/home.js/}
     assert_no_tag :script, :attributes => {:src => /javascripts\/extra.js/}
     assert_no_tag :script, :attributes => {:src => /javascripts\/users.js/}
-    assert_tag :script, :attributes => {:src => /sweet_javascripts_application,home,extra.js(\?\d*)?/}
+    assert_tag :script, :attributes => {:src => /sweet_javascripts_home,extra.js(\?\d*)?/}
     assert_tag :script, :attributes => {:src => /sweet_javascripts_web,users.js(\?\d*)?/}
     # and check the placement
     location_of_head = @response.body =~ /<head>/
     location_of_title = @response.body =~ /<title>/
-    location_of_home_extra_js = @response.body =~ /<script src="\/javascripts\/sweet_javascripts_application,home,extra.js/
+    location_of_home_extra_js = @response.body =~ /<script src="\/javascripts\/sweet_javascripts_home,extra.js/
     location_of_web_users_js = @response.body =~ /<script src="\/javascripts\/sweet_javascripts_web,users.js/
     assert location_of_head < location_of_home_extra_js
     assert location_of_home_extra_js < location_of_title
     assert location_of_title < location_of_web_users_js
     ActionController::Base.perform_caching = false
+  end
+  
+  def test_defaults_should_include_prototype_scriptaculous_and_application
+    @controller = DefaultsController.new
+    get :index
+    assert_tag :script, :attributes => {:src => /prototype.js/}
+    assert_tag :script, :attributes => {:src => /effects.js/}
+    assert_tag :script, :attributes => {:src => /dragdrop.js/}
+    assert_tag :script, :attributes => {:src => /controls.js/}
+    assert_tag :script, :attributes => {:src => /application.js/}
   end
   
   def test_shortcuts

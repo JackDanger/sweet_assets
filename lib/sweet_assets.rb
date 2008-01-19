@@ -39,6 +39,9 @@ module SweetAssets
     def script_like(*scripts)
       scripts.each do |script|
         script = script.to_s
+        if 'defaults' == script
+          script_like *([ActionView::Helpers::AssetTagHelper::JAVASCRIPT_DEFAULT_SOURCES] + ['application']).flatten
+        end
         sweet_assets[:javascripts][script.ends_with?('!') ? :bottom : :top] << script.gsub(/!$/, '')
       end
     end
@@ -73,7 +76,7 @@ module SweetAssets
     end
 
     def apply_default_scripts
-      script_like :application
+      # we don't apply application.js by default because Rails already knows how to do that.
       script_like "#{controller_name}!"
     end
 
