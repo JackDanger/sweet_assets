@@ -40,7 +40,7 @@ module SweetAssets
       scripts.each do |script|
         script = script.to_s
         if 'defaults' == script
-          script_like :prototype, :scriptaculous, :application
+          script_like :prototype, :scriptaculous, :builder, :effects, :dragdrop, :controls, :slider, :sound, :application
         end
         sweet_assets[:javascripts][script.ends_with?('!') ? :bottom : :top] << script.gsub(/!$/, '')
       end
@@ -105,7 +105,8 @@ module SweetAssets
       def stylesheet_tags(placement)
         files = @assets[:stylesheets][placement].dup
         files.uniq!
-        files = files.select {|file| File.exists?("#{STYLESHEETS_DIR}/#{file}.css") } unless RAILS_ENV.eql?('test')
+        files.map! {|file| file =~ /\.css$/ ? file : "#{file}.css" }
+        files = files.select {|file| File.exists?("#{STYLESHEETS_DIR}/#{file}") } unless RAILS_ENV.eql?('test')
         return '' if files.blank?
         files << {:cache => "sweet_stylesheets_#{files.join(',')}" } if ActionController::Base.perform_caching
         stylesheet_link_tag *files
@@ -114,7 +115,8 @@ module SweetAssets
       def javascript_tags(placement)
         files = @assets[:javascripts][placement].dup
         files.uniq!
-        files = files.select {|file| File.exists?("#{JAVASCRIPTS_DIR}/#{file}.js") } unless RAILS_ENV.eql?('test')
+        files.map! {|file| file =~ /\.js$/ ? file : "#{file}.js" }
+        files = files.select {|file| File.exists?("#{JAVASCRIPTS_DIR}/#{file}") } unless RAILS_ENV.eql?('test')
         return '' if files.blank?
         files << {:cache => "sweet_javascripts_#{files.join(',')}" } if ActionController::Base.perform_caching
         javascript_include_tag *files
