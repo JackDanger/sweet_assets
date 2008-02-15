@@ -71,13 +71,13 @@ class SweetAssetsTest < Test::Unit::TestCase
     assert_no_tag :link, :attributes => {:href => /stylesheets\/home.css/, :rel => 'stylesheet'}
     assert_no_tag :link, :attributes => {:href => /stylesheets\/extra.css/, :rel => 'stylesheet'}
     assert_no_tag :link, :attributes => {:href => /stylesheets\/users.css/, :rel => 'stylesheet'}
-    assert_tag :link, :attributes => {:href => /sweet_stylesheets_application,home,extra.css(\?\d*)?/, :rel => 'stylesheet'}
-    assert_tag :link, :attributes => {:href => /sweet_stylesheets_web,users.css(\?\d*)?/, :rel => 'stylesheet'}
+    assert_tag :link, :attributes => {:href => /sweet_stylesheets_application.css,home.css,extra.css(\?\d*)?/, :rel => 'stylesheet'}
+    assert_tag :link, :attributes => {:href => /sweet_stylesheets_web.css,users.css(\?\d*)?/, :rel => 'stylesheet'}
     # and check the placement
     location_of_head = @response.body =~ /<head>/
     location_of_title = @response.body =~ /<title>/
-    location_of_home_extra_css = @response.body =~ /<link href="\/stylesheets\/sweet_stylesheets_application,home,extra.css/
-    location_of_web_users_css = @response.body =~ /<link href="\/stylesheets\/sweet_stylesheets_web,users.css/
+    location_of_home_extra_css = @response.body =~ /<link href="\/stylesheets\/sweet_stylesheets_application.css,home.css,extra.css/
+    location_of_web_users_css = @response.body =~ /<link href="\/stylesheets\/sweet_stylesheets_web.css,users.css/
     assert location_of_head < location_of_home_extra_css
     assert location_of_home_extra_css < location_of_title
     assert location_of_title < location_of_web_users_css
@@ -96,13 +96,13 @@ class SweetAssetsTest < Test::Unit::TestCase
     assert_no_tag :script, :attributes => {:src => /javascripts\/home.js/}
     assert_no_tag :script, :attributes => {:src => /javascripts\/extra.js/}
     assert_no_tag :script, :attributes => {:src => /javascripts\/users.js/}
-    assert_tag :script, :attributes => {:src => /sweet_javascripts_home,extra.js(\?\d*)?/}
-    assert_tag :script, :attributes => {:src => /sweet_javascripts_web,users.js(\?\d*)?/}
+    assert_tag :script, :attributes => {:src => /sweet_javascripts_home.js,extra.js(\?\d*)?/}
+    assert_tag :script, :attributes => {:src => /sweet_javascripts_web.js,users.js(\?\d*)?/}
     # and check the placement
     location_of_head = @response.body =~ /<head>/
     location_of_title = @response.body =~ /<title>/
-    location_of_home_extra_js = @response.body =~ /<script src="\/javascripts\/sweet_javascripts_home,extra.js/
-    location_of_web_users_js = @response.body =~ /<script src="\/javascripts\/sweet_javascripts_web,users.js/
+    location_of_home_extra_js = @response.body =~ /<script src="\/javascripts\/sweet_javascripts_home.js,extra.js/
+    location_of_web_users_js = @response.body =~ /<script src="\/javascripts\/sweet_javascripts_web.js,users.js/
     assert location_of_head < location_of_home_extra_js
     assert location_of_home_extra_js < location_of_title
     assert location_of_title < location_of_web_users_js

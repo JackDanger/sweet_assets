@@ -3,19 +3,27 @@ require 'action_view/helpers/url_helper'
 require 'action_view/helpers/tag_helper'
 
 module SweetAssets
-  def self.included(base)
-    base.class_eval do
-      include AssignmentMethods
-      include ClassMethods
-      extend  SweetAssetsShortcuts
-      include AppendAssetsAfterRescue
-      before_filter :initialize_assets_accessor
-      before_filter :apply_default_styles
-      before_filter :apply_default_scripts
-      after_filter  :apply_sweet_assets
+  PRIMARY_JAVASCRIPTS = [:prototype, :scriptaculous, :builder, :effects, :dragdrop, :controls, :slider, :sound, :application]
+
+  class << self
+
+    attr_accessor :use_primary_javascripts
+
+    def included(base)
+      base.class_eval do
+        include AssignmentMethods
+        include ClassMethods
+        extend  SweetAssetsShortcuts
+        include AppendAssetsAfterRescue
+        before_filter :initialize_assets_accessor
+        before_filter :apply_default_styles
+        before_filter :apply_default_scripts
+        after_filter  :apply_sweet_assets
+      end
     end
   end
-  
+
+
   module SweetAssetsShortcuts
     def style_like(*assets)
       options = assets.extract_options!
@@ -40,9 +48,10 @@ module SweetAssets
       scripts.each do |script|
         script = script.to_s
         if 'defaults' == script
-          script_like :prototype, :scriptaculous, :builder, :effects, :dragdrop, :controls, :slider, :sound, :application
+          SweetAssets.use_primary_javascripts = true
+        else
+          sweet_assets[:javascripts][script.ends_with?('!') ? :bottom : :top] << script.gsub(/!$/, '')
         end
-        sweet_assets[:javascripts][script.ends_with?('!') ? :bottom : :top] << script.gsub(/!$/, '')
       end
     end
     
@@ -85,6 +94,7 @@ module SweetAssets
       generator = SweetAssetsGenerator.new(@sweet_assets, self)
       response.body.gsub! '<head>', "<head>\n#{generator.tags(:top)}\n" if response.body.respond_to?(:gsub!)
       response.body.gsub! '</head>', "\n#{generator.tags(:bottom)}\n</head>" if response.body.respond_to?(:gsub!)
+      SweetAssets.use_primary_javascripts = false
       @sweet_assets = {}
     end
     
@@ -114,6 +124,9 @@ module SweetAssets
 
       def javascript_tags(placement)
         files = @assets[:javascripts][placement].dup
+        if SweetAssets.use_primary_javascripts
+          files = SweetAssets::PRIMARY_JAVASCRIPTS + files
+        end
         files.uniq!
         files.map! {|file| file =~ /\.js$/ ? file : "#{file}.js" }
         files = files.select {|file| File.exists?("#{JAVASCRIPTS_DIR}/#{file}") } unless RAILS_ENV.eql?('test')
