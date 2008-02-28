@@ -39,8 +39,7 @@ module SweetAssets
   module AssignmentMethods    
     def style_like(*styles)
       styles.each do |style|
-        style = style.to_s
-        sweet_assets[:stylesheets][style.ends_with?('!') ? :bottom : :top] << style.gsub(/!$/, '')
+        add_sweet_asset(style.to_s, :stylesheets)
       end
     end
     
@@ -50,16 +49,31 @@ module SweetAssets
         if 'defaults' == script
           SweetAssets.use_primary_javascripts = true
         else
-          sweet_assets[:javascripts][script.ends_with?('!') ? :bottom : :top] << script.gsub(/!$/, '')
+          add_sweet_asset(script, :javascripts)
         end
       end
     end
     
-    def sweet_assets
-      self.is_a?(ActionView::Base) ?
-        controller.instance_variable_get("@sweet_assets") :
-        @sweet_assets
-    end
+    protected
+
+      def add_sweet_asset(asset, collection)
+        collection = sweet_assets[collection]
+        if asset.ends_with?('!')
+          asset.gsub!(/!$/, '')
+          collection[:top].delete(asset)
+          collection[:bottom] << asset
+        else
+          unless collection[:bottom].include?(asset)
+            collection[:top] << asset
+          end
+        end
+      end
+    
+      def sweet_assets
+        self.is_a?(ActionView::Base) ?
+          controller.instance_variable_get("@sweet_assets") :
+          @sweet_assets
+      end
   end
   
   module ClassMethods
