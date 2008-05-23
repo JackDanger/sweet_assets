@@ -3,11 +3,11 @@ require 'action_view/helpers/url_helper'
 require 'action_view/helpers/tag_helper'
 
 module SweetAssets
-  PRIMARY_JAVASCRIPTS = [:prototype, :scriptaculous, :builder, :effects, :dragdrop, :controls, :slider, :sound, :application]
+  RAILS_DEFAULT_JAVASCRIPTS = [:prototype, :effects, :dragdrop, :controls]
 
   class << self
 
-    attr_accessor :use_primary_javascripts
+    attr_accessor :use_rails_default_javascripts
 
     def included(base)
       base.class_eval do
@@ -47,7 +47,7 @@ module SweetAssets
       scripts.each do |script|
         script = script.to_s
         if 'defaults' == script
-          SweetAssets.use_primary_javascripts = true
+          SweetAssets.use_rails_default_javascripts = true
         else
           add_sweet_asset(script, :javascripts)
         end
@@ -108,7 +108,7 @@ module SweetAssets
       generator = SweetAssetsGenerator.new(@sweet_assets, self)
       response.body.gsub! '<head>', "<head>\n#{generator.tags(:top)}\n" if response.body.respond_to?(:gsub!)
       response.body.gsub! '</head>', "\n#{generator.tags(:bottom)}\n</head>" if response.body.respond_to?(:gsub!)
-      SweetAssets.use_primary_javascripts = false
+      SweetAssets.use_rails_default_javascripts = false
       @sweet_assets = {}
     end
     
@@ -138,7 +138,7 @@ module SweetAssets
 
       def javascript_tags(placement)
         files = @assets[:javascripts][placement].dup
-        if SweetAssets.use_primary_javascripts
+        if SweetAssets.use_rails_default_javascripts
           files = SweetAssets::PRIMARY_JAVASCRIPTS + files
         end
         files.uniq!
