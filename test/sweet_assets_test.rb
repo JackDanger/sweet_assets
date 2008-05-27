@@ -1,22 +1,22 @@
 
-RAILS_ENV='test'
+RAILS_ENV = 'test'
 
+require File.dirname(__FILE__) + '/../../../../config/environment'
 require 'test/unit'
-require File.expand_path(File.dirname(__FILE__) + '/../../../../config/environment')
-require File.expand_path(File.dirname(__FILE__) + '/../../../../test/test_helper')
+require 'rubygems'
+require 'action_controller/test_process'
+require File.dirname(__FILE__) + '/../init'
 
+ActionController::Base.view_paths = [File.dirname(__FILE__) + '/views/']
 
 # Re-raise errors caught by the controller.
 class WebController < ActionController::Base
-  before_filter :style_like_home
-  before_filter :style_like_users!
-  before_filter :style_like_extra
-  before_filter :script_like_home
-  before_filter :script_like_users!
-  before_filter :script_like_extra
-  def index
-    render :text => '<html><head><title>SweetAssets</title></head><body></body></html>'
-  end
+  style_like  :home
+  style_like  :users!
+  style_like  :extra
+  script_like :home
+  script_like :users!
+  script_like :extra
 end
 
 class ShortcutController < ActionController::Base
@@ -55,7 +55,11 @@ class SweetAssetsTest < Test::Unit::TestCase
   def test_bottom_stylesheets_should_appear_last
     get :index
     assert_response :success
-    assert @response.body =~ /<link href="\/stylesheets\/users.css(\?\d*)?" media="screen" rel="stylesheet" type="text\/css" \/>\n*?<\/head>/
+    location_of_extra_css = @response.body =~ /<link href="\/stylesheets\/extra.css/
+    location_of_home_css  = @response.body =~ /<link href="\/stylesheets\/home.css/
+    location_of_users_css = @response.body =~ /<link href="\/stylesheets\/users.css/
+    assert location_of_home_css < location_of_extra_css
+    assert location_of_extra_css < location_of_users_css
   end
 
   def test_caching_stylesheets
@@ -71,16 +75,7 @@ class SweetAssetsTest < Test::Unit::TestCase
     assert_no_tag :link, :attributes => {:href => /stylesheets\/home.css/, :rel => 'stylesheet'}
     assert_no_tag :link, :attributes => {:href => /stylesheets\/extra.css/, :rel => 'stylesheet'}
     assert_no_tag :link, :attributes => {:href => /stylesheets\/users.css/, :rel => 'stylesheet'}
-    assert_tag :link, :attributes => {:href => /sweet_stylesheets_application.css,home.css,extra.css(\?\d*)?/, :rel => 'stylesheet'}
-    assert_tag :link, :attributes => {:href => /sweet_stylesheets_web.css,users.css(\?\d*)?/, :rel => 'stylesheet'}
-    # and check the placement
-    location_of_head = @response.body =~ /<head>/
-    location_of_title = @response.body =~ /<title>/
-    location_of_home_extra_css = @response.body =~ /<link href="\/stylesheets\/sweet_stylesheets_application.css,home.css,extra.css/
-    location_of_web_users_css = @response.body =~ /<link href="\/stylesheets\/sweet_stylesheets_web.css,users.css/
-    assert location_of_head < location_of_home_extra_css
-    assert location_of_home_extra_css < location_of_title
-    assert location_of_title < location_of_web_users_css
+    assert_tag :link, :attributes => {:href => /sweet_assets_([\w\d]{32}).css/, :rel => 'stylesheet'}
     ActionController::Base.perform_caching = false
   end
 
@@ -96,16 +91,7 @@ class SweetAssetsTest < Test::Unit::TestCase
     assert_no_tag :script, :attributes => {:src => /javascripts\/home.js/}
     assert_no_tag :script, :attributes => {:src => /javascripts\/extra.js/}
     assert_no_tag :script, :attributes => {:src => /javascripts\/users.js/}
-    assert_tag :script, :attributes => {:src => /sweet_javascripts_home.js,extra.js(\?\d*)?/}
-    assert_tag :script, :attributes => {:src => /sweet_javascripts_web.js,users.js(\?\d*)?/}
-    # and check the placement
-    location_of_head = @response.body =~ /<head>/
-    location_of_title = @response.body =~ /<title>/
-    location_of_home_extra_js = @response.body =~ /<script src="\/javascripts\/sweet_javascripts_home.js,extra.js/
-    location_of_web_users_js = @response.body =~ /<script src="\/javascripts\/sweet_javascripts_web.js,users.js/
-    assert location_of_head < location_of_home_extra_js
-    assert location_of_home_extra_js < location_of_title
-    assert location_of_title < location_of_web_users_js
+    assert_tag :script, :attributes => {:src => /sweet_assets_([\w\d]{32}).js/}
     ActionController::Base.perform_caching = false
   end
   

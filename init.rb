@@ -1,5 +1,11 @@
 require 'sweet_assets'
 
-ActionController::Base.send :include, SweetAssets
-ActionView::Base.send :include, SweetAssets::AssignmentMethods
+
+ActionController::Base.class_eval do
+  include SweetAssets::ActionController
+end
+
+ActionView::Base.class_eval do
+  include SweetAssets::ActionView::Helpers
+end
 
