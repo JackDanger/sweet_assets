@@ -1,5 +1,9 @@
 = SweetAssets
 
+http://github.com/JackDanger/sweet_assets
+
+== Description
+
   Automate adding stylesheets and javascripts to your controller actions
 
 == Example
