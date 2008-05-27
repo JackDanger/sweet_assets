@@ -1,8 +1,4 @@
 require 'cgi'
-require 'actionpack'
-require 'activesupport'
-require 'action_controller'
-require 'action_view'
 require 'action_view/helpers/url_helper'
 require 'action_view/helpers/tag_helper'
 require 'digest/md5'
@@ -14,9 +10,6 @@ require 'digest/md5'
 # script_like :boats
 
 module SweetAssets
-
-  VERSION = '2.0.1'
-
   DEFAULT_JAVASCRIPTS = ['prototype', 'effects', 'dragdrop', 'controls']
   SCRIPT_PLACEHOLDER  = '<!--SWEET_JAVASCRIPTS-->'
   STYLE_PLACEHOLDER   = '<!--SWEET_STYLESHEETS-->'
@@ -60,8 +53,8 @@ module SweetAssets
 
         def apply_sweet_assets
           if response.body.respond_to?(:gsub!)
-            response.body.gsub! SweetAssets::STYLE_PLACEHOLDER,  sweet_assets.tags.stylesheets
-            response.body.gsub! SweetAssets::SCRIPT_PLACEHOLDER, sweet_assets.tags.javascripts
+            response.body.gsub! SweetAssets::STYLE_PLACEHOLDER,  "\n#{sweet_assets.tags.stylesheets}"
+            response.body.gsub! SweetAssets::SCRIPT_PLACEHOLDER, "\n#{sweet_assets.tags.javascripts}"
           end
         end
     end
