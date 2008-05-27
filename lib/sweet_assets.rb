@@ -1,4 +1,8 @@
 require 'cgi'
+require 'actionpack'
+require 'activesupport'
+require 'action_controller'
+require 'action_view'
 require 'action_view/helpers/url_helper'
 require 'action_view/helpers/tag_helper'
 require 'digest/md5'
@@ -10,6 +14,9 @@ require 'digest/md5'
 # script_like :boats
 
 module SweetAssets
+
+  VERSION = '2.0.1'
+
   DEFAULT_JAVASCRIPTS = ['prototype', 'effects', 'dragdrop', 'controls']
   SCRIPT_PLACEHOLDER  = '<!--SWEET_JAVASCRIPTS-->'
   STYLE_PLACEHOLDER   = '<!--SWEET_STYLESHEETS-->'

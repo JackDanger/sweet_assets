@@ -1,0 +1,16 @@
+=== 1.0.0 / 2008-03-11
+
+* 1 major enhancement
+
+  * First iteration complete.
+
+ 
+=== 2.0.1 / 2008-05-27
+
+* 2 major enhancements
+
+  * Completely rewritten.  Doesn't use <head> parsing magic.
+  * Supports media selection for stylesheets 
+
+ 
+

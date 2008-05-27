@@ -1,0 +1,12 @@
+MIT-LICENSE
+Manifest.txt
+README.txt
+Rakefile
+init.rb
+install.rb
+lib/sweet_assets.rb
+test/sweet_assets_test.rb
+test/views/defaults/index.html.erb
+test/views/shortcut/index.html.erb
+test/views/web/index.html.erb
+uninstall.rb
