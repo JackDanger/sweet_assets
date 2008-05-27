@@ -1,10 +1,8 @@
-SweetAssets
-===============
+= SweetAssets
 
   Automate adding stylesheets and javascripts to your controller actions
 
-Example
-=======
+== Example
 
   Any controller will include the stylesheet and javascript source files named after named after the contorller if the file exists:
   

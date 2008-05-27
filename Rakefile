@@ -1,22 +1,15 @@
-require 'rake'
-require 'rake/testtask'
-require 'rake/rdoctask'
+# -*- ruby -*-
 
-desc 'Default: run unit tests.'
-task :default => :test
+$:.unshift(File.dirname(__FILE__) + '/lib')
 
-desc 'Test the sweet_assets plugin.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = true
+
+require 'rubygems'
+require 'hoe'
+require "sweet_assets"
+
+Hoe.new('sweet_assets', SweetAssets::VERSION) do |p|
+  p.rubyforge_name = 'objectproxy' # if different than lowercase project name
+  p.developer('Jack Danger Canty', 'sweet_assets_gem@6brand.com')
 end
 
-desc 'Generate documentation for the sweet_assets plugin.'
-Rake::RDocTask.new(:rdoc) do |rdoc|
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title    = 'SweetAssets'
-  rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README')
-  rdoc.rdoc_files.include('lib/**/*.rb')
-end
+# vim: syntax=Ruby
