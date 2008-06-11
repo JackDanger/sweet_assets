@@ -216,9 +216,19 @@ end
   # we're going to wrap our rescue_action around the top-level rescue_action method chain
   # this ensures that we can apply the stylesheets even if the after filter was aborted due to an exception
   module AppendAssetsAfterRescue
-    def rescue_action(*args)
-      super
-      apply_sweet_assets
+    def self.included(base)
+      base.class_eval do
+        def initialize_with_append_sweet_assets_rescue_action(*args)
+          initialize_without_append_sweet_assets_rescue_action(*args)
+          self.class.send :alias_method_chain, :rescue_action, :append_sweet_assets unless respond_to?(:rescue_action_without_append_sweet_assets)
+        end
+        alias_method_chain :initialize, :append_sweet_assets_rescue_action unless respond_to?(:initialize_without_append_sweet_assets_rescue_action)
+      end
     end
-  end
+    
+    def rescue_action_with_append_sweet_assets(*args)
+      rescue_action_without_append_sweet_assets(*args)
+       apply_sweet_assets
+     end
+   end
 end
