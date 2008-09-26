@@ -58,7 +58,7 @@ class SweetAssetsTest < Test::Unit::TestCase
     location_of_extra_css = @response.body =~ /<link href="\/stylesheets\/extra.css/
     location_of_home_css  = @response.body =~ /<link href="\/stylesheets\/home.css/
     location_of_users_css = @response.body =~ /<link href="\/stylesheets\/users.css/
-    assert location_of_home_css < location_of_extra_css
+    assert location_of_home_css < location_of_users_css
     assert location_of_extra_css < location_of_users_css
   end
 

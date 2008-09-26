@@ -25,13 +25,13 @@ module SweetAssets
 
     module ClassMethods
       def style_like(*assets)
-        before_filter do |controller|
+        prepend_before_filter do |controller|
           controller.send :style_like, *assets
         end
       end
 
       def script_like(*assets)
-        before_filter do |controller|
+        prepend_before_filter do |controller|
           controller.send :script_like, *assets
         end
       end
@@ -39,6 +39,13 @@ module SweetAssets
 
     module InstanceMethods
       protected
+        # Apply the assets even if the filter chain was aborted
+        def call_filters(*args)
+          ret = super
+          apply_sweet_assets
+          ret
+        end
+
         def style_like(*assets)
           sweet_assets.style_like(*assets)
         end
@@ -52,10 +59,12 @@ module SweetAssets
         end
 
         def apply_sweet_assets
+          return if @sweet_assets_applied
           if response.body.respond_to?(:gsub!)
             response.body.gsub! SweetAssets::STYLE_PLACEHOLDER,  "\n#{sweet_assets.tags.stylesheets}"
             response.body.gsub! SweetAssets::SCRIPT_PLACEHOLDER, "\n#{sweet_assets.tags.javascripts}"
           end
+          @sweet_assets_applied = true
         end
     end
   end
@@ -175,7 +184,7 @@ module SweetAssets
 
           # check that the files exist
           unless RAILS_ENV.eql?('test')
-            files = files.select {|file| File.exists?("#{STYLESHEETS_DIR}/#{file}") }
+            files = files.select {|file| File.exists?( file.starts_with?('/') ? "#{RAILS_ROOT}/public#{file}" : "#{STYLESHEETS_DIR}/#{file}") }
           end
           
           files
@@ -195,7 +204,7 @@ module SweetAssets
 
         # check that the files exist
         unless RAILS_ENV.eql?('test')
-          files = files.select {|file| File.exists?("#{JAVASCRIPTS_DIR}/#{file}") }
+          files = files.select {|file| File.exists?(file.starts_with?('/') ? "#{RAILS_ROOT}/public#{file}" : "#{JAVASCRIPTS_DIR}/#{file}") }
         end
         files
       end.flatten.uniq.compact
@@ -228,7 +237,7 @@ end
     
     def rescue_action_with_append_sweet_assets(*args)
       rescue_action_without_append_sweet_assets(*args)
-       apply_sweet_assets
-     end
-   end
+      apply_sweet_assets
+    end
+  end
 end
