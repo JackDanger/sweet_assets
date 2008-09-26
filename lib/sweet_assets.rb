@@ -10,6 +10,7 @@ require 'digest/md5'
 # script_like :boats
 
 module SweetAssets
+  VERSION = '1.2.0'
   DEFAULT_JAVASCRIPTS = ['prototype', 'effects', 'dragdrop', 'controls']
   SCRIPT_PLACEHOLDER  = '<!--SWEET_JAVASCRIPTS-->'
   STYLE_PLACEHOLDER   = '<!--SWEET_STYLESHEETS-->'
