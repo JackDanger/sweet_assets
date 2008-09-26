@@ -1,5 +1,7 @@
 require 'cgi'
+require 'active_support'
 require 'action_view/helpers/url_helper'
+require 'action_view/helpers/asset_tag_helper'
 require 'action_view/helpers/tag_helper'
 require 'digest/md5'
 
